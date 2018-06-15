@@ -1,0 +1,45 @@
+import "./StatementHubStandard.sol";
+
+contract StatementHubNew is StatementHubStandard {
+
+  mapping(uint256=> address) statementToPersonMap;  // maps which statemnent was issued by which address
+
+  Statement[] statementList;
+  uint256 statementNonce;
+
+function addStatement(uint256 resourcelinkHash, uint256 resourceHash, uint256 patternHash, bool isPatternPresent,
+ uint256 resourceSummaryHash, address statementIssuer) public returns (uint256 ){
+  uint256 statementId = statementList.push(Statement(resourcelinkHash, resourceHash,patternHash,isPatternPresent,resourceSummaryHash, statementIssuer)) -1;
+  emit StatementAdded(resourcelinkHash, resourceHash,patternHash,isPatternPresent,resourceSummaryHash,statementIssuer);
+  statementNonce = statementId;
+  statementToPersonMap[statementId] = msg.sender;
+  return statementNonce;
+  }
+
+ function getStatement(uint256 _Id) public view returns(uint256 resourcelinkHash, uint256 resourceHash, uint256 patternHash,
+ bool isPatternPresent, uint256 resourceSummaryHash,address statementIssuer){
+
+    require(_Id <= statementNonce);
+     emit StatementRequested(_Id);
+     return (statementList[_Id].resourcelinkHash, statementList[_Id].resourceHash, statementList[_Id].patternHash,
+     statementList[_Id].isPatternPresent,statementList[_Id].resourceSummaryHash,statementList[_Id].statementIssuer);
+ }
+
+  function verifyStatement(uint256 Id, uint256 resourcelinkHash, uint256 resourceHash, uint256 patternHash, bool isPatternPresent,
+ uint256 resourceSummaryHash, address statementIssuer) public view returns (bool) {
+ require(Id <= statementNonce);
+ if( (statementList[Id].resourcelinkHash == resourcelinkHash)
+  && (statementList[Id].resourceHash == resourceHash)
+  && (statementList[Id].patternHash == patternHash)
+  && (statementList[Id].isPatternPresent == isPatternPresent)
+  && (statementList[Id].resourceSummaryHash == resourceSummaryHash) ) {
+
+  emit StatementVerify(Id, true,resourcelinkHash,resourceHash,patternHash,isPatternPresent,resourceSummaryHash);
+      return true;
+  }
+    emit StatementVerify(Id, true,resourcelinkHash,resourceHash,patternHash,isPatternPresent,resourceSummaryHash);
+     return false;
+ }
+
+
+}
