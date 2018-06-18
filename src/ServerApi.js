@@ -1,8 +1,8 @@
-import ipfs from './ipfs'
+
 
 module.exports = {
  SendServerLogStatement : function(contentHash, patternHash,
-   transactionHash,eventType) {
+   transactionHash,eventType, statementId) {
 
      console.log("SendingData to ServiceApi",contentHash, patternHash,
        transactionHash,eventType)
@@ -17,7 +17,8 @@ module.exports = {
           "contentHash":contentHash,
           "patternHash": patternHash,
           "transactionHash": transactionHash,
-          "eventType":eventType
+          "eventType":eventType,
+          "statementId":statementId
         }),
       }).then(function(response){
         console.log(response);
@@ -106,7 +107,7 @@ console.log("CallBack for tracking when set state of dataFromApi has been done")
 },
 
 UpdateTransactionWithIpfs : function(transactionHash, ipfsHash) {
-  fetch(`http://localhost:8080/updatetransaction_ipfs/`,{
+  fetch(`http://localhost:8080/update_transaction_ipfs/`,{
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

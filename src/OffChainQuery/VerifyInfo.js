@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import TransactionTable from './TransactionTable'
+import TransactionTable from '../TransactionTable'
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
-const ServerApi = require('./ServerApi')
-import './css/ResourceDetailsForm.css'
+const ServerApi = require('../ServerApi')
+import '../css/ResourceDetailsForm.css'
 
 
 
@@ -103,7 +103,7 @@ renderForm() {
       onChange={this.handlequeryparamChange}
       onBlur={this.handleBlur('queryparam')}
     />
-    <button disabled={isDisabled}>Query Information </button>
+    <button disabled={isDisabled}>Query Off-Chain </button>
   </form>
   </div>);
 }

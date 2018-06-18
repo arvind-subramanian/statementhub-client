@@ -58,6 +58,10 @@ componentDidMount() {
       {
           Header:"ResourceLink",
           accessor:"resourceLink"
+      },
+      {
+          Header:"StatementId",
+          accessor:"statementId"
       }
 
     ]}

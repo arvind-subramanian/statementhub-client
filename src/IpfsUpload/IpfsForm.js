@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-const ServerApi = require('./ServerApi')
+const ServerApi = require('../ServerApi')
 
 function validate(queryparam) {
   return {
@@ -89,7 +89,7 @@ class IpfsForm extends React.Component {
         onChange={this.handlequeryparamChange}
         onBlur={this.handleBlur('queryparam')}
       />
-      <button disabled={isDisabled}>Query Information </button>
+      <button disabled={isDisabled}>Confirm before IPFS Upload </button>
     </form>
     </div>);
   }

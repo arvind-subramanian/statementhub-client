@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import VerifyInfo from './VerifyInfo'
-import TransactionTable from './TransactionTable'
+import TransactionTable from '../TransactionTable'
 
 class FormTable extends React.Component {
   constructor(props) {

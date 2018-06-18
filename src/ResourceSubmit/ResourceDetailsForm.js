@@ -1,22 +1,23 @@
   import React, { Component } from 'react'
-  const ServerApi = require('./ServerApi')
-  import './css/ResourceDetailsForm.css'
+  const ServerApi = require('../ServerApi')
+  import '../css/ResourceDetailsForm.css'
 
   var murmurhash = require('node-murmurhash');
 
 
-  import StatementHubContract from '../build/contracts/StatementHub.json'
-  import getWeb3 from './utils/getWeb3'
+  import getWeb3 from '../utils/getWeb3'
+  import StatementHubContract from '../../build/contracts/StatementHub.json'
 
 
   function validate(resourcelink, resourcecontent, patterntext,patternsummary) {
   // true means invalid, so our conditions got reversed
+  console.log("Substring search",resourcecontent.toLowerCase().indexOf(patterntext.toLowerCase()))
   return {
     resourcecontent: resourcecontent.length ===0,
     patterntext: patterntext.length ===0,
     resourcelink: resourcelink.length ===0,
     patternsummary:patternsummary.length ===0,
-    resourcecontent:resourcecontent.toLowerCase().indexOf(patterntext) == -1,
+    resourcecontent:resourcecontent.toLowerCase().indexOf(patterntext.toLowerCase()) == -1,
   };
 }
 
@@ -71,37 +72,45 @@
 
     const contract = require('truffle-contract')
     const statementHub = contract(StatementHubContract)
+
     statementHub.setProvider(this.state.web3.currentProvider)
+
     var statementHubInstance
+
     let callbackfunc =this.props.callbackParent
     let callbackfuncloader = this.props.callbackParentLoader
-    //callbackfuncloader(true)
-    this.state.web3.eth.getAccounts((error, accounts) => {
-      statementHub.deployed().then( (instance) =>{
-        statementHubInstance = instance
-        this.setState(prevState => ({...prevState, accounts, statementHubInstance  }));
-        /* Accessing log after transaction*/
-        statementHubInstance.LogStatement({fromBlock: 0}).watch( function (error, result) {
-          if(!error){
-            console.log(error)
-          }
-          if(!result) {
-            console.log(result)
-          }
-          //event LogStatement(uint256 resourcelinkHash,uint256 resourceHash,uint256 patternHash, bool isPatternPresent, uint256 resourceSummaryHash);
 
-          /* Send Transaction Information to web service*/
-          ServerApi.SendServerLogStatement(result.args.patternHash.toString(),
-          result.args.resourceHash.toString(),result.transactionHash.toString(),result.event.toString())
-          console.log("Displaying TransactionHash")
-          callbackfunc(result.transactionHash.toString())
-         callbackfuncloader(true)
+    this.state.web3.eth.getAccounts((error, accounts) => {
+
+      if (error) {
+         console.log("GetAccounts Error",error);
+         }
+// checking for new statementhub deployment
+statementHub.deployed().then( (instance) => {
+  statementHubInstance = instance
+  this.setState(prevState => ({...prevState, accounts, statementHubInstance}));
+  statementHubInstance.StatementAdded({fromBlock:0}).watch( function(error, result){
+    console.log("Printing Event Statement Added",result)
+    ServerApi.SendServerLogStatement(result.args.patternHash.toString(),
+    result.args.resourceHash.toString(),result.transactionHash.toString(),result.event.toString(), result.args.statementId.toString())
+    callbackfunc(result.transactionHash.toString())
+    callbackfuncloader(true)
+    console.log("Printing parameters txhash,patternhash,resourcehash,event", result.transactionHash.toString(), result.args.patternHash.toString(),result.args.resourceHash.toString())
   })
-  }).then( (result) =>{
-  console.log("Printing result", result)
+
+  statementHubInstance.StatementRequested({fromBlock:0}).watch( function(error, result){
+  console.log("Printing StatementRequested", result)
+})
+
+  statementHubInstance.StatementVerify({fromBlock:0}).watch(function(error,result){
+    console.log("Printing StatementVerify", result)
   })
-  })
-  }
+
+}).then ( (result)=> {console.log("Printing Result for new StatementHub", result)})
+})
+}
+
+  //}
 
 
 
@@ -137,6 +146,7 @@
   }
 
   handleSubmit = (evt) => {
+    evt.preventDefault();
     if (!this.canBeSubmitted()) {
       evt.preventDefault();
       return;
@@ -151,30 +161,29 @@
   var contenthash =  murmurhash(resourcecontentparam,97)
   var paternhash =  murmurhash(patterntextparam ,97)
   var resourcelinkhash = murmurhash(resourcelinkparam,97)
+  var patternsummaryhash = murmurhash(patternsummaryparam, 97)
   var contenthash_str =contenthash+''
   var paternhash_str = paternhash+''
   var resourcelinkhash_str =  resourcelinkhash +''
 
-  if (this.state.statementHubInstance  && this.state.accounts) {
-    console.log("Condition check through")
-  } else {
-    console.log("Condition check broke")
+
+  if(this.state.statementHubInstance && this.state.accounts){
+    console.log("NewContract Check gone through")
   }
-  var d="444",e ="555"
+
+
+
   /* Get computed hash value of link, linktext, patterntext, contenttext
   Initiate a sending transaction logic here ->
   In Log Callback, send back data to server api to collate
   In Verification, use search by topic / search by transaction etc
   */
  this.props.callbackParentLoader(false)
-  ServerApi.SendInfoPreTransaction(resourcelinkparam, resourcecontentparam, patterntextparam ,contenthash_str,paternhash_str,"AddStatement", this.state.accounts[0].toString())
+ console.log("Accounts Info",this.state.accounts)
+  ServerApi.SendInfoPreTransaction(resourcelinkparam,resourcecontentparam, patterntextparam ,contenthash_str,paternhash_str,"StatementAdded", this.state.accounts[0].toString())
+  this.state.statementHubInstance.addStatement(resourcelinkhash,paternhash,contenthash,parseInt("1",10),patternsummaryhash,
+  {from: this.state.accounts[0], gas:3000000 } ).then((result) => {console.log("Result after Transaction =", result) })
 
-  this.state.statementHubInstance.addStatement(resourcelinkhash,paternhash,contenthash,parseInt(d,10),parseInt(e,10),
-  {from: this.state.accounts[0], gas:3000000 } ).then((result) => {
-      return this.state.statementHubInstance.getStatementListLength.call()
-    }).then((result) =>{
-      console.log("ResultStatementLength =", result)
-    })
 
   }
 
@@ -230,7 +239,7 @@
       onBlur={this.handleBlur('email')}
     />
 
-    <button disabled={isDisabled}>Submit Link</button>
+    <button disabled={isDisabled}>Submit Resource Details</button>
   </form>
 )
 

@@ -1,0 +1,21 @@
+version: "3"
+services:
+  web:
+    restart: always
+    image: arvindsubramanian/statementhubservice:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    command: ["bash", "/root/wait-for-it.sh", "localhost:5432", "--", "/root/main2"]
+    networks: ['mynetwork']
+  postgres:
+    restart: always
+    image: arvindsubramanian/servicedbimage:latest 
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks: ['mynetwork']
+networks: {mynetwork: {}}

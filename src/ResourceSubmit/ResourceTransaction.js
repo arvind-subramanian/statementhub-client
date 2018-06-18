@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ResourceDetailsForm from './ResourceDetailsForm'
-import TransactionTable from './TransactionTable'
+import TransactionTable from '../TransactionTable'
 var Loader = require('react-loader');
 
 class ResourceTransaction extends React.Component {
