@@ -17,8 +17,11 @@ Here's a screenshot of the UI
 
   <dt>Client</dt>
     <dd>In statementhub-client/ </dd>
+    <dd>truffle compile --reset --compile-all</dd>
+   <dd>truffle migrate --network development</dd>
   <dd>npm install</dd>
    <dd>npm start run</dd>
+ 
 </dl>
 
 
