@@ -3,9 +3,18 @@ Ethereum Dapp : StatementHub  tracks a  Resource link, Resource Content and Reso
 
 Here's a screenshot of the UI 
 
+
+
 ![screenshotdapp](https://user-images.githubusercontent.com/369012/41529305-51028c9a-730a-11e8-9f34-8c59bcdaa1c0.png)
 
-## Demo Video : https://www.youtube.com/watch?v=x7x9bgkkzKs 
+
+## Demo Video : 
+
+https://www.youtube.com/watch?v=x7x9bgkkzKs 
+
+## Blog Article: 
+https://medium.com/@arvind.subramanian.286/statementhub-an-ethereum-dapp-that-uses-ipfs-microservices-for-authoritative-time-sensitive-267b6b467fd
+
 
 ## Instructions:
 
